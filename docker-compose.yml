@@ -1,0 +1,61 @@
+version: "3.8"
+services:
+
+  auth-service:
+    build:
+      context: ./auth-service
+    ports:
+      - "8000:8000" # Map container port 80 to host port 8080
+    volumes:
+      - ./auth-service:/var/www/html
+    depends_on:
+      - mariadb
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "4000:4000" # Map container port 4000 to host port 4000
+    depends_on:
+      - auth-service
+    volumes:
+      - ./api-gateway:/api-gateway/src
+
+  user-service:
+    build:
+      context: ./users-service
+    ports:
+      - "3000:3000" # Map container port 4000 to host port 4000
+    depends_on:
+      - mariadb
+    volumes:
+      - ./users-service:/users-service/src
+
+  todo-list-service:
+    build:
+      context: ./todo-list-service
+    ports:
+      - "5000:5000"  # Assuming Flask runs on port 5000 by default
+    depends_on:
+      - mongodb
+    environment:
+      - FLASK_DEBUG=1
+      - MONGO_URI=mongodb://mongodb:27017/todo_list_db
+      - ./todo-list-service:/app
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27022:27017"
+
+  mariadb:
+    image: mariadb:10.5
+    ports:
+      - "127.0.0.1:3312:3306"
+    volumes:
+      - /opt/todo/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_USER: example
+      MYSQL_PASSWORD: example
+      MYSQL_DATABASE: auth

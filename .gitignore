@@ -1,0 +1,7 @@
+api-gateway/node_modules/*
+api-gateway/dist/*
+.idea/*
+api-gateway/.idea/*
+auth-service/.idea
+user-service/.idea
+auth-service/storage/*.key
